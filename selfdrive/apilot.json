@@ -284,33 +284,13 @@
     },
     {
       "group": "주행튜닝",
-      "name": "DynamicJerk",
-      "title": "JERK DYNAMIC(0)",
-      "descr": "0:Normal,1:Jerk cmd, 2:Accel diff",
-      "min": 0,
-      "max": 2,
-      "default": 0,
-      "unit": 1
-    },
-    {
-      "group": "주행튜닝",
       "name": "JerkStartLimit",
-      "title": "JERK START(10)x0.1",
+      "title": "JERK START(10)x0.1(20)",
       "descr": "값이 커지면 출발응답성이 빨라집니다.",
       "min": 1,
       "max": 50,
       "default": 10,
       "unit": 5
-    },
-    {
-      "group": "주행튜닝",
-      "name": "JerkUpperLowerLimit",
-      "title": "JERK값 (8)",
-      "descr": "값이 커지면 가감속반응이 빨라집니다.",
-      "min": 1,
-      "max": 50,
-      "default": 8,
-      "unit": 1
     },
     {
       "group": "주행튜닝",
@@ -363,36 +343,6 @@
       "unit": 1
     },
     {
-      "group": "주행튜닝",
-      "name": "AChangeCost",
-      "title": "A_CHANGE_COST(200)",
-      "descr": "적으면 선행차에 대한 반응이 빨라집니다.",
-      "min": 20,
-      "max": 400,
-      "default": 150,
-      "unit": 10
-    },
-    {
-      "group": "주행튜닝",
-      "name": "LeadDangerFactor",
-      "title": "LEAD_DANGER_FACTOR(80)",
-      "descr": "",
-      "min": 75,
-      "max": 100,
-      "default": 80,
-      "unit": 1
-    },
-    {
-      "group": "주행튜닝",
-      "name": "DangerZoneCost",
-      "title": "DANGER_ZONE_COST(100)",
-      "descr": "",
-      "min": 0,
-      "max": 400,
-      "default": 100,
-      "unit": 10
-    },
-    {
       "group": "감속제어",
       "name": "TrafficStopAccel",
       "title": "신호정지 감속율 (80%)",
@@ -415,7 +365,7 @@
     {
       "group": "감속제어",
       "name": "ApplyModelDistOrder",
-      "title": "신호정지 감속모델선택 (32)",
+      "title": "신호정지 감속모델선택 (30)",
       "descr": "숫자가 작을수록 감속을 미리합니다.",
       "min": 1,
       "max": 32,
@@ -586,9 +536,9 @@
       "group": "크루즈",
       "name": "AutoCancelFromGasMode",
       "title": "엑셀 크루즈OFF:모드",
-      "descr": "엑셀크루즈ON속도 이하에서 엑셀을 밟으면 크루즈가 해제 1:항상, 2:레이더OFF시에만",
+      "descr": "0:유지, 1:항상, 2:레이더OFF시에만",
       "min": 0,
-      "max": 140,
+      "max": 2,
       "default": 0,
       "unit": 1
     },
@@ -1003,6 +953,16 @@
       "unit": 1
     },
     {
+      "group": "시작",
+      "name": "HotspotOnBoot",
+      "title": "부팅시 핫스팟켜기",
+      "descr": "",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "unit": 1
+    },
+    {
       "group": "차량간격",
       "name": "ApplyLongDynamicCost",
       "title": "차량간격유지 동적제어사용(1)",
@@ -1165,8 +1125,8 @@
     {
       "group": "감속제어",
       "name": "AutoNaviSpeedDecelRate",
-      "title": "과속카메라 감속율 x0.01m/s^2(100)",
-      "descr": "",
+      "title": "과속카메라 감속율 x0.01m/s^2(80)",
+      "descr": "낮으면 멀리서부터 감속함",
       "min": 10,
       "max": 200,
       "default": 100,
