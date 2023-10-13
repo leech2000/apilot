@@ -105,6 +105,7 @@ class CruiseHelper:
     self.curvatureFilter = StreamingMovingAverage(20)
 
     self.longCruiseGap = int(Params().get("PrevCruiseGap"))
+    self.longCruiseGap_backup = self.longCruiseGap
     self.cruiseSpeedMin = int(Params().get("CruiseSpeedMin"))
 
     self.autoCurveSpeedCtrlUse = int(Params().get("AutoCurveSpeedCtrlUse"))
@@ -275,7 +276,7 @@ class CruiseHelper:
     vRel = lead.vRel if lead is not None else 0
     return dRel, vRel
 
-  def update_cruise_buttons(self, enabled, controls, buttonEvents, v_cruise_kph, metric):
+  def update_cruise_buttons(self, enabled, controls, CS, buttonEvents, v_cruise_kph, metric):
     global ButtonCnt, LongPressed, ButtonPrev
 
     button_speed_up_diff = 1
@@ -286,11 +287,22 @@ class CruiseHelper:
       if ButtonCnt > 0:
         ButtonCnt += 1
       for b in buttonEvents:
-        if b.pressed and ButtonCnt==0 and (b.type == ButtonType.accelCruise or b.type == ButtonType.decelCruise or b.type == ButtonType.gapAdjustCruise):
+        if b.pressed and ButtonCnt==0 and (b.type == ButtonType.accelCruise or b.type == ButtonType.decelCruise or b.type == ButtonType.gapAdjustCruise or b.type == ButtonType.cancel):
           ButtonCnt = 1
           ButtonPrev = b.type
         elif not b.pressed and ButtonCnt > 0:
-          if not LongPressed and b.type == ButtonType.accelCruise:
+          if b.type == ButtonType.cancel:
+            if self.longActiveUser > 0:
+              controls.events.add(EventName.cruisePaused)
+              self.longActiveUser = 0
+              self.longCruiseGap_backup = self.longCruiseGap
+              self.longCruiseGap = 5
+            else:
+              controls.events.add(EventName.cruiseResume)
+              self.longActiveUser = 1
+              self.longCruiseGap = self.longCruiseGap_backup
+              #controls.events.add(EventName.buttonCancel)
+          elif not LongPressed and b.type == ButtonType.accelCruise:
             v_cruise_kph += button_speed_up_diff if metric else button_speed_up_diff * CV.MPH_TO_KPH
             button_type = ButtonType.accelCruise
           elif not LongPressed and b.type == ButtonType.decelCruise:
@@ -309,6 +321,7 @@ class CruiseHelper:
             elif self.gapButtonMode == 3:
               self.longCruiseGap = 5
 
+            self.longCruiseGap_backup = self.longCruiseGap
             button_type = ButtonType.gapAdjustCruise
             #Params().put("PrevCruiseGap", str(self.longCruiseGap))
 
@@ -317,7 +330,11 @@ class CruiseHelper:
       if ButtonCnt > 40:
         LongPressed = True
         V_CRUISE_DELTA = 10
-        if ButtonPrev == ButtonType.accelCruise:
+        if ButtonPrev == ButtonType.cancel:
+           self.longActiveUser = 0
+           controls.events.add(EventName.buttonCancel)
+           ButtonCnt = 0
+        elif ButtonPrev == ButtonType.accelCruise:
           v_cruise_kph += V_CRUISE_DELTA - v_cruise_kph % V_CRUISE_DELTA
           button_type = ButtonType.accelCruise
           ButtonCnt %= 40
@@ -765,9 +782,9 @@ class CruiseHelper:
     return longActiveUser, v_cruise_kph, v_cruise_kph_backup
 
   def button_control(self, enabled, controls, CS, v_cruise_kph, buttonEvents, metric):
-    longActiveUser = self.longActiveUser
     v_cruise_kph_backup = self.v_cruise_kph_backup
-    button,buttonLong,buttonSpeed = self.update_cruise_buttons(enabled, controls, buttonEvents, v_cruise_kph, metric)
+    button,buttonLong,buttonSpeed = self.update_cruise_buttons(enabled, controls,CS,  buttonEvents, v_cruise_kph, metric)
+    longActiveUser = self.longActiveUser
 
     ##### Cruise Button 처리...
     if buttonLong:
