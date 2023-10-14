@@ -235,8 +235,8 @@ class LongitudinalMpc:
     self.tFollowSpeedRatio = 1.2
     self.tFollowGap1 = 1.1
     self.tFollowGap2 = 1.2
-    self.tFollowGap3 = 1.6
-    self.tFollowGap4 = 1.2
+    self.tFollowGap3 = 1.4
+    self.tFollowGap4 = 1.6
     self.stopDistance = STOP_DISTANCE
     self.softHoldTimer = 0
     self.lo_timer = 0 
@@ -593,14 +593,6 @@ class LongitudinalMpc:
 
   def update_gap_tf(self, controls, radarstate, v_ego, a_ego):
     v_ego_kph = v_ego * CV.MS_TO_KPH
-    #if controls.longCruiseGap >= 4:
-    #  if v_ego_kph > self.v_ego_kph_prev:  ##감속할때 gap을 줄이면.. 앞차로 너무 다가가는 경향이... 가속할때만... 자동gap
-    #    self.applyCruiseGap = interp(v_ego_kph, [0, 45, 60, 100, 120, 140], [1,1,2,2,3,4])
-    #  cruiseGapRatio = interp(self.applyCruiseGap, [1,2,3,4], [1.1, 1.2, 1.3, 1.45])
-    #  self.applyCruiseGap = clip(self.applyCruiseGap, 1, 4)
-    #else:
-    #  self.applyCruiseGap = float(controls.longCruiseGap)
-    #  cruiseGapRatio = interp(controls.longCruiseGap, [1,2,3], [1.1, 1.3, 1.6])
 
     if v_ego_kph >= self.v_ego_kph_prev: # 감속일때는 t_follow(gap) 계산안함.
       self.applyCruiseGap = clip(controls.longCruiseGap, 1, 4)
@@ -622,7 +614,7 @@ class LongitudinalMpc:
         if v_ego_kph < 0.1:
           self.applyCruiseGap = 1
         else:
-          self.applyCruiseGap = int(interp(a_ego, [-1.5, -0.5], [3, self.applyCruiseGap]))
+          self.applyCruiseGap = int(interp(a_ego, [-1.5, -0.5], [4, self.applyCruiseGap]))
 
   def update_stop_dist(self, stop_x):
     stop_x = self.xStopFilter.process(stop_x, median = True)
