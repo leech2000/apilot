@@ -610,14 +610,15 @@ void DrawPlot::makePlotData(const UIState* s, float& data1, float& data2) {
     auto    car_state = sm["carState"].getCarState();
     float   a_ego = car_state.getAEgo();
     float   v_ego = car_state.getVEgo();
-    auto    car_control = sm["carControl"].getCarControl();
-    float   accel = car_control.getActuators().getAccel();
+    //auto    car_control = sm["carControl"].getCarControl();
+    //float   accel = car_control.getActuators().getAccel();
     auto    live_parameters = sm["liveParameters"].getLiveParameters();
     float   roll = live_parameters.getRoll();
     auto    controls_state = sm["controlsState"].getControlsState();
     float   curvature = controls_state.getCurvature();
     //float   desired_curvature = controls_state.getDesiredCurvature();
     const auto lp = sm["longitudinalPlan"].getLongitudinalPlan();
+    float   accel = lp.getAccels()[0];
     float   speeds_0 = lp.getSpeeds()[0];
     const auto lat_plan = sm["lateralPlan"].getLateralPlan();
     float   curvatures_0 = lat_plan.getCurvatures()[0];
@@ -625,6 +626,8 @@ void DrawPlot::makePlotData(const UIState* s, float& data1, float& data2) {
     const cereal::ModelDataV2::Reader& model = sm["modelV2"].getModelV2();
     const auto position = model.getPosition();
     const auto velocity = model.getVelocity();
+
+    auto lead_radar = sm["radarState"].getRadarState().getLeadOne();
 
     switch (s->show_plot_mode) {
     case 0:
@@ -645,6 +648,10 @@ void DrawPlot::makePlotData(const UIState* s, float& data1, float& data2) {
     case 4:
         data1 = position.getX()[32];
         data2 = velocity.getX()[32];
+        break;
+    case 5:
+        data1 = lead_radar.getVLeadK();
+        data2 = lead_radar.getALeadK();
         break;
     default:
         data1 = data2 = 0;
@@ -751,6 +758,7 @@ void DrawApilot::makeLeadData(const UIState* s) {
     m_fStopDist = lp.getXStop();
 
     m_bLeadStatus = (lead_radar.getStatus() == 1);
+    m_bLeadSCC = lead_radar.getRadarTrackId() == 0;
 }
 void DrawApilot::drawBackground(const UIState* s) {
     if (s->show_mode == 2) {
@@ -1604,7 +1612,8 @@ void DrawApilot::drawPathEnd(const UIState* s, int x, int y, int path_x, int pat
         py[4] = path_y - 0;
         py[5] = path_y - 17;
         py[6] = path_y - 7;
-        NVGcolor  pcolor = !isRadarDetected() ? ((getTrafficMode() == 1) ? COLOR_RED : COLOR_GREEN) : isRadarDetected() ? COLOR_RED : COLOR_BLUE;
+        NVGcolor rcolor = isLeadSCC() ? COLOR_RED : COLOR_ORANGE;
+        NVGcolor  pcolor = !isRadarDetected() ? ((getTrafficMode() == 1) ? rcolor : COLOR_GREEN) : isRadarDetected() ? rcolor : COLOR_BLUE;
         ui_draw_line2(s, px, py, 7, &pcolor, nullptr, 3.0f);
         if (s->show_path_end > 0 && isLeadDetected()) {
             px[0] = path_x - path_width / 2 - 10;
@@ -1616,7 +1625,7 @@ void DrawApilot::drawPathEnd(const UIState* s, int x, int y, int path_x, int pat
             py[2] = py[1] - path_width * 0.8;
             py[3] = py[2];
             NVGcolor color2 = COLOR_BLACK_ALPHA(20);
-            ui_draw_line2(s, px, py, 4, &color2, nullptr, 3.0f, isRadarDetected() ? COLOR_RED : COLOR_BLUE);
+            ui_draw_line2(s, px, py, 4, &color2, nullptr, 3.0f, isRadarDetected() ? rcolor : COLOR_BLUE);
 
         }
 

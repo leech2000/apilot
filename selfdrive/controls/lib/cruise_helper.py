@@ -551,7 +551,7 @@ class CruiseHelper:
     #  (autoResumeFromGasSpeed보다 빠거나 60%이상 밟으면
     #    - autoResumeFromGasSpeedMode에 따라 속도 설정(기존속도, 현재속도)
     elif longActiveUser <= 0:
-      if self.autoResumeFromGas > 0 and (self.trafficState % 10) != 1 and self.auto_cruise_control: ## 적색신호에서는 엑셀크루즈ON 안함.: 급정거 발생우려
+      if self.autoResumeFromGas in [1,2] and (self.trafficState % 10) != 1 and self.auto_cruise_control: ## 적색신호에서는 엑셀크루즈ON 안함.: 급정거 발생우려
         if ((resume_cond and (self.v_ego_kph >= self.autoResumeFromGasSpeed)) or CS.gas >= 0.6):
           longActiveUser = 3
           if self.preGasPressedMax >= 0.6: # 60%이상 GAS를 밟으면.. 기존속도..
@@ -875,8 +875,8 @@ class CruiseHelper:
         elif self.v_ego_kph > 20.0 and self.xState == XState.e2eStop: # and abs(self.position_y) < 3.0:
           #v_cruise_kph = self.v_ego_kph_set
           longActiveUser = 3
-        elif self.v_ego_kph > v_cruise_kph:
-          longActiveUser = 3
+        #elif self.v_ego_kph > v_cruise_kph:
+        #  longActiveUser = 3
 
       if longActiveUser <= 0 and not brakePressed and not CS.gasPressed:
         cruiseOnDist = abs(self.cruiseOnDist)
