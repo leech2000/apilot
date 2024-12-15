@@ -176,7 +176,8 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 13.6  # average of all the cars
       ret.tireStiffnessFactor = 0.385
       if candidate == CAR.KIA_NIRO_PHEV:
-        ret.minSteerSpeed = 32 * CV.MPH_TO_MS
+        #ret.minSteerSpeed = 32 * CV.MPH_TO_MS
+        pass
     elif candidate == CAR.KIA_SELTOS:
       ret.mass = 1337.
       ret.wheelbase = 2.63
